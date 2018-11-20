@@ -1,2 +1,0 @@
-# CryptoInvestmentApp
-MyFirstIOSApp-Swift
