@@ -69,8 +69,13 @@ final class SelectExchangeViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let exchangeId = self.exchangeData.exchangeId[indexPath.row]
-        returnExchangeId(exchangeId: exchangeId)
+        if !searching {
+            let exchangeId = self.exchangeData.exchangeId[indexPath.row]
+            returnExchangeId(exchangeId: exchangeId)
+        } else {
+            let exchangeId = self.filteredExchanges[indexPath.row]
+            returnExchangeId(exchangeId: exchangeId)
+        }
     }
     
     weak var delegate: returnExchangeIdDelegate?

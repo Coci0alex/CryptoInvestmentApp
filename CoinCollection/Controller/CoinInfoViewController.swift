@@ -94,6 +94,10 @@ class CoinInfoViewController: UIViewController, ChartViewDelegate  {
         getUI.deleteButton.setTitle("Delete", for: .normal)
         getUI.deleteButton.addTarget(self, action: #selector(didTapDeleteButton), for: .touchUpInside)
         getUI.deleteButton.setTitleColor(.black, for: .normal)
+        getUI.resetZoom.setTitle("ZoomOut", for: .normal)
+        getUI.resetZoom.addTarget(self, action: #selector(didTapZoomButton), for: .touchUpInside)
+        getUI.resetZoom.setTitleColor(.black, for: .normal)
+        
         
         if coinData.rateChange < 0 {
             getUI.rateChange.textColor = .red
@@ -110,7 +114,7 @@ class CoinInfoViewController: UIViewController, ChartViewDelegate  {
         candleStickChart.chartDescription?.enabled = false
         
         candleStickChart.dragEnabled = true
-        candleStickChart.setScaleEnabled(false)
+        candleStickChart.setScaleEnabled(true)
         candleStickChart.pinchZoomEnabled = true
         candleStickChart.candleData?.setDrawValues(false)
 
@@ -119,7 +123,9 @@ class CoinInfoViewController: UIViewController, ChartViewDelegate  {
         candleStickChart.leftAxis.enabled = false
         
         candleStickChart.rightAxis.enabled = true
-        candleStickChart.rightAxis.spaceBottom = 0
+        candleStickChart.rightAxis.spaceBottom = 0.3
+        candleStickChart.rightAxis.spaceTop = 0.3
+        
         candleStickChart.xAxis.axisMaxLabels = 9
         candleStickChart.xAxis.centerAxisLabelsEnabled = false
         candleStickChart.xAxis.labelPosition = .bottom
@@ -148,13 +154,14 @@ class CoinInfoViewController: UIViewController, ChartViewDelegate  {
         set1.setColor(UIColor(white: 80/255, alpha: 1))
         set1.drawIconsEnabled = false
         set1.shadowColor = .darkGray
-        set1.shadowWidth = 0.7
+        set1.shadowWidth = 3.5
         set1.decreasingColor = .red
-        set1.decreasingFilled = true
+        set1.decreasingFilled = false
         set1.increasingColor = UIColor(red: 122/255, green: 242/255, blue: 84/255, alpha: 1)
-        set1.increasingFilled = true
+        set1.increasingFilled = false
         set1.neutralColor = .blue
         set1.highlightLineWidth = 1
+        set1.showCandleBar = true
         
         candleStickChart.xAxis.valueFormatter = axisFormatDelegate
         candleStickChart.xAxis.granularity = 1
@@ -197,24 +204,25 @@ class CoinInfoViewController: UIViewController, ChartViewDelegate  {
                             self.highest = high
                         }
                     }
-                    
                     if let volume = Double(getJson.data[index].volume) {
                         self.totalVolume += volume
                     }
-                    
-                    self.open24h.append(getJson.data[index].open)
-                    self.close24h.append(getJson.data[index].close)
-                    self.period.append(getJson.data[index].period)
-                    self.low24h.append(low)
-                    self.high24h.append(high)
-                }
+                
+                    if index % 15 == 0 {
+                        self.open24h.append(getJson.data[index].open)
+                        self.close24h.append(getJson.data[index].close)
+                        self.period.append(getJson.data[index].period)
+                        self.low24h.append(low)
+                        self.high24h.append(high)
+                    }
+            }
             
             self.getUI.lowest.text = "$" + String(self.lowest.rounded(toPlaces: 2))
             self.getUI.highest.text = "$" + String(self.highest.rounded(toPlaces: 2))
             if self.totalVolume > 1000000 {
                 self.getUI.volume.text = "$" + String((self.totalVolume / 1000000).rounded(toPlaces: 2)) + "MM"
             } else {
-                self.getUI.volume.text = "$" + String((self.totalVolume / 1000000).rounded(toPlaces: 2)) + "K"
+                self.getUI.volume.text = "$" + String((self.totalVolume).rounded(toPlaces: 2)) + "K"
             }
         }
         return statusCode
@@ -249,6 +257,10 @@ extension CoinInfoViewController: IAxisValueFormatter {
 }
 
 extension CoinInfoViewController: deleteButtonDelegate {
+    @objc func didTapZoomButton() {
+        candleStickChart.zoomOut()
+    }
+    
     @objc func didTapDeleteButton() {
         delegate?.didTapDeleteCoin(coinData: coinData)
         self.navigationController?.popViewController(animated: true)

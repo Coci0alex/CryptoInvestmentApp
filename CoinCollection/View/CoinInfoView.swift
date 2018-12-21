@@ -11,6 +11,7 @@ import Charts
 
 protocol deleteButtonDelegate: class {
     func didTapDeleteButton()
+    func didTapZoomButton()
 }
 
 class CoinInfoView: UIView {
@@ -77,11 +78,28 @@ class CoinInfoView: UIView {
         return button
     }()
     
+    lazy var resetZoom: UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.layer.backgroundColor = UIColor.blue.cgColor
+        button.backgroundColor = .white
+        button.layer.cornerRadius = 8
+        button.layer.borderWidth = 2
+        button.layer.masksToBounds = true
+        button.addTarget(self, action: #selector(resetZoomPushed), for: .touchUpInside)
+        return button
+    }()
+    
     weak var delegate: deleteButtonDelegate?
     
     @objc func deleteButtonPushed() {
         print("BLEV TRYKKET")
         delegate?.didTapDeleteButton()
+    }
+    
+    @objc func resetZoomPushed() {
+        print("ZOOM BLEV TRYKKET")
+        delegate?.didTapZoomButton()
     }
     
     let currentPriceLabel: UILabel = {
@@ -175,6 +193,8 @@ class CoinInfoView: UIView {
         addSubview(exchangeIdLabel)
         addSubview(marketPairLabel)
         addSubview(deleteButton)
+        addSubview(resetZoom)
+
         addSubview(currentPriceLabel)
         addSubview(rateChange)
         addSubview(container)
@@ -235,6 +255,18 @@ class CoinInfoView: UIView {
         deleteButton.titleLabel?.minimumScaleFactor = 0.1
         deleteButton.titleLabel?.lineBreakMode = NSLineBreakMode.byClipping
         deleteButton.titleLabel?.baselineAdjustment = UIBaselineAdjustment.alignCenters
+        
+        resetZoom.widthAnchor.constraint(equalTo: candleStickChart.widthAnchor, multiplier: 0.175).isActive = true
+        resetZoom.heightAnchor.constraint(equalTo: candleStickChart.heightAnchor, multiplier: 0.075).isActive = true
+        resetZoom.leadingAnchor.constraint(equalTo: deleteButton.trailingAnchor, constant: 5).isActive = true
+        resetZoom.bottomAnchor.constraint(equalTo: candleStickChart.topAnchor, constant: -5).isActive = true
+        
+        resetZoom.titleLabel?.font = UIFont.systemFont(ofSize: 100)
+        resetZoom.titleLabel?.numberOfLines = 0
+        resetZoom.titleLabel?.adjustsFontSizeToFitWidth = true
+        resetZoom.titleLabel?.minimumScaleFactor = 0.1
+        resetZoom.titleLabel?.lineBreakMode = NSLineBreakMode.byClipping
+        resetZoom.titleLabel?.baselineAdjustment = UIBaselineAdjustment.alignCenters
 
         currentPriceLabel.widthAnchor.constraint(equalTo: candleStickChart.widthAnchor, multiplier: 0.3).isActive = true
         currentPriceLabel.heightAnchor.constraint(equalTo: candleStickChart.heightAnchor, multiplier: 0.2).isActive = true

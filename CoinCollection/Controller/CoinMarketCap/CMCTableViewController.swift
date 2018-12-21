@@ -20,6 +20,7 @@ class CMCTableViewController: UIViewController, UITableViewDelegate, UITableView
         super.init(nibName: nil, bundle: nil)
         
     }
+    
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -37,12 +38,25 @@ class CMCTableViewController: UIViewController, UITableViewDelegate, UITableView
     var Ascending = [Bool] (repeating: true, count: 4)
     private let errorModal = NetworkErrorHandling()
     
+    private var filteredCoins = [CoinData]()
+    private var searching  = false
+    private let searchBarUI = UISearchBar()
+
     /// CMC = CoinMarketCap: Pass Core Data Object ///
     var coinDataCMC = [CoinData]()
     
     let navigationBar = NavigationBarView()
 
     let statusCodeOk = 200
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(false)
+        self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(refreshButtonPushed))
+    }
+    
+    @objc func refreshButtonPushed() {
+            self.checkNetworkErrors(statusCode: self.getCoinData())
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -51,11 +65,12 @@ class CMCTableViewController: UIViewController, UITableViewDelegate, UITableView
         
         setupTableView()
         setupTableViewConstraints()
+        setupSearchBar()
+
         myTableView.addSubview(indicator)
         myTableView.separatorColor = .blue
         
         indicator.startAnimating()
-    
         if !Reachability.isConnectedToNetwork() {
             let modal = errorModal.noInternetModal()
             self.present(modal, animated: false, completion: nil)
@@ -69,6 +84,30 @@ class CMCTableViewController: UIViewController, UITableViewDelegate, UITableView
         }
     }
     
+     func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        searchBarUI.endEditing(true)
+    }
+    
+    func setupSearchBar() {
+        
+        view.addSubview(searchBarUI)
+        searchBarUI.translatesAutoresizingMaskIntoConstraints = false
+        searchBarUI.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
+        searchBarUI.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        searchBarUI.bottomAnchor.constraint(equalTo: myTableView.topAnchor, constant: -5).isActive = true
+        searchBarUI.heightAnchor.constraint(equalToConstant: screenSize.height / 15).isActive = true
+        searchBarUI.backgroundColor = .blue
+        searchBarUI.showsCancelButton = false
+        
+        let textFieldInsideSearchBar = searchBarUI.value(forKey: "searchField") as? UITextField
+        textFieldInsideSearchBar?.textColor = .blue
+        textFieldInsideSearchBar?.placeholder = "Search for coins"
+        let imageV = textFieldInsideSearchBar?.leftView as! UIImageView
+        imageV.image = imageV.image?.withRenderingMode(UIImage.RenderingMode.alwaysTemplate)
+        imageV.tintColor = UIColor.blue
+        searchBarUI.delegate = myTableView.delegate as? UISearchBarDelegate
+    }
+    
     func showModal(_ header: String, _ message: String) {
         let popUpVC = PopUpViewController()
         
@@ -79,7 +118,6 @@ class CMCTableViewController: UIViewController, UITableViewDelegate, UITableView
         navigationController.modalPresentationStyle = UIModalPresentationStyle.overCurrentContext
         self.present(navigationController, animated: false, completion: nil)
     }
-
     
                 // MARK: - Table view data source
         func tableView(_ tableVew: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
@@ -93,7 +131,11 @@ class CMCTableViewController: UIViewController, UITableViewDelegate, UITableView
 
          func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
             // #warning Incomplete implementation, return the number of rows
-            return coinDataCMC.count
+            if searching {
+                return filteredCoins.count
+            } else {
+                return coinDataCMC.count
+            }
         }
   
         func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
@@ -102,6 +144,10 @@ class CMCTableViewController: UIViewController, UITableViewDelegate, UITableView
             headeren.delegate = self
             return headeren
         }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        searchBarUI.endEditing(true)
+    }
 
         func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
             return UIScreen.main.bounds.height/18//Choose your custom row height
@@ -109,21 +155,39 @@ class CMCTableViewController: UIViewController, UITableViewDelegate, UITableView
     
         func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
             let cell = tableView.dequeueReusableCell(withIdentifier: "cellId") as! CoinCellView
+            cell.selectionStyle = .none
             
-            cell.rankLabel.text = String(coinDataCMC[indexPath.row].rank)
-            cell.coinLogo.image = UIImage(data: (coinDataCMC[indexPath.row].logo as Data?)!)
-            cell.coinName.text = coinDataCMC[indexPath.row].name
-            cell.coinPrice.textColor = .magenta
-            cell.coinPrice.text = "$" + String(coinDataCMC[indexPath.row].price)
-            
-             if coinDataCMC[indexPath.row].rate < 0 {
-             cell.rateChange24h.textColor = .red
-             }
-             else {
-             cell.rateChange24h.textColor = .green
-             }
-            cell.rateChange24h.text = String(coinDataCMC[indexPath.row].rate) + "%"
-            return cell
+            if !searching {
+                cell.rankLabel.text = String(coinDataCMC[indexPath.row].rank)
+                cell.coinLogo.image = UIImage(data: (coinDataCMC[indexPath.row].logo as Data?)!)
+                cell.coinName.text = coinDataCMC[indexPath.row].name
+                cell.coinPrice.textColor = .magenta
+                cell.coinPrice.text = "$" + String(coinDataCMC[indexPath.row].price)
+                
+                 if coinDataCMC[indexPath.row].rate < 0 {
+                 cell.rateChange24h.textColor = .red
+                 }
+                 else {
+                 cell.rateChange24h.textColor = .green
+                 }
+                cell.rateChange24h.text = String(coinDataCMC[indexPath.row].rate) + "%"
+                return cell
+            } else {
+                cell.rankLabel.text = String(filteredCoins[indexPath.row].rank)
+                cell.coinLogo.image = UIImage(data: (filteredCoins[indexPath.row].logo as Data?)!)
+                cell.coinName.text = filteredCoins[indexPath.row].name
+                cell.coinPrice.textColor = .magenta
+                cell.coinPrice.text = "$" + String(filteredCoins[indexPath.row].price)
+                
+                if filteredCoins[indexPath.row].rate < 0 {
+                    cell.rateChange24h.textColor = .red
+                }
+                else {
+                    cell.rateChange24h.textColor = .green
+                }
+                cell.rateChange24h.text = String(filteredCoins[indexPath.row].rate) + "%"
+                return cell
+            }
         }
     
     /// Fetches Coins From CoreData ///
@@ -156,6 +220,7 @@ class CMCTableViewController: UIViewController, UITableViewDelegate, UITableView
         myTableView.dataSource = self
         view.addSubview(myTableView)
         self.fetchCoins()
+        self.myTableView.tableFooterView = UIView()
         myTableView.reloadData()
     }
     
@@ -178,6 +243,19 @@ extension Double {
     func rounded(toPlaces places:Int) -> Double {
         let divisor = pow(10.0, Double(places))
         return (self * divisor).rounded() / divisor
+    }
+}
+
+extension CMCTableViewController: UISearchBarDelegate {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchText != "" {
+            filteredCoins = self.coinDataCMC.filter( {$0.name!.localizedCaseInsensitiveContains(searchText) ||  $0.name!.localizedCaseInsensitiveContains(searchText)} )
+            searching = true
+            myTableView.reloadData()
+        } else {
+            searching = false
+            myTableView.reloadData()
+        }
     }
 }
 

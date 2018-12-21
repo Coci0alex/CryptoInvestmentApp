@@ -40,35 +40,54 @@ final class HomeTableViewController: UIViewController, UITableViewDelegate, UITa
 
     private let navigationBar = NavigationBarView()
     private var errorModal = NetworkErrorHandling()
+    var Ascending = [Bool] (repeating: true, count: 3)
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(false)
-        self.tabBarController?.tabBar.isHidden = false
-        
-        self.navigationController?.setNavigationBarHidden(false, animated: true)
-        self.navigationItem.title = "CoinCollection"
-        self.navigationItem.leftBarButtonItem = navigationBar.refreshButton
-        self.navigationItem.rightBarButtonItem = navigationBar.addButton
-        self.tabBarController?.navigationController?.navigationBar.isHidden = true
-    }
-
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-     //   deleteAllCoins()
+        //   deleteAllCoins()
         fetchCoins()
         setupTableView()
         setupPortFolioView()
-        navigationBar.navigationDelegate = self
-        
+        setupNavigationUI()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(false)
+        self.tabBarController?.tabBar.isHidden = false
+        self.navigationController?.setNavigationBarHidden(false, animated: true)
+        self.tabBarController?.navigationController?.navigationBar.isHidden = true
+
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(false)
+        fetchCoins()
+        didTapHoldingsBtn()
+        homeTableView.reloadData()
+       
         if !Reachability.isConnectedToNetwork() {
             let modal = errorModal.noInternetModal()
             self.present(modal, animated: false, completion: nil)
         } else if coreDataCoins.count != 0 {
             checkNetworkErrors(statusCode: self.updateCoinData())
+            didTapHoldingsBtn()
+            homeTableView.reloadData()
         }
     }
     
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(false)
+    }
+    
+    func setupNavigationUI() {
+        navigationBar.navigationDelegate = self
+        self.tabBarController?.tabBar.tintColor = #colorLiteral(red: 0, green: 1, blue: 0.9874952435, alpha: 1)
+        self.tabBarController?.tabBar.barTintColor = .black
+        self.navigationItem.title = "Coin Collection"
+        self.navigationItem.leftBarButtonItem = navigationBar.refreshButton
+        self.navigationItem.rightBarButtonItem = navigationBar.addButton
+    }
     
     func getCryptoLogos() {
         jsonCoinLogoURL = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/info?symbol="
@@ -85,7 +104,6 @@ final class HomeTableViewController: UIViewController, UITableViewDelegate, UITa
                 }
             }
         }
-        
         self.coinMarketCapService.jsonCoinLogoURL = self.jsonCoinLogoURL
         
         if self.getCoinLogos() == 200 {
@@ -101,8 +119,6 @@ final class HomeTableViewController: UIViewController, UITableViewDelegate, UITa
             self.homeTableView.reloadData()
         }
     }
-    
-
     
     func setupPortFolioView() {
         let imageView = UIImageView()
@@ -143,7 +159,6 @@ final class HomeTableViewController: UIViewController, UITableViewDelegate, UITa
         totalCoinsLabel.widthAnchor.constraint(equalTo: imageView.widthAnchor, multiplier: 0.2).isActive = true
         totalCoinsLabel.heightAnchor.constraint(equalTo: imageView.heightAnchor, multiplier: 0.3).isActive = true
         
-        
         imageView.addSubview(totalCoins)
         totalCoins.text = "0.00"
         totalCoins.translatesAutoresizingMaskIntoConstraints = false
@@ -162,7 +177,6 @@ final class HomeTableViewController: UIViewController, UITableViewDelegate, UITa
             labelArray[i].minimumScaleFactor = 0.1
             labelArray[i].lineBreakMode = NSLineBreakMode.byClipping
             labelArray[i].baselineAdjustment = UIBaselineAdjustment.alignCenters
-        
         }
     }
    
@@ -178,7 +192,7 @@ final class HomeTableViewController: UIViewController, UITableViewDelegate, UITa
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let homeHeader = homeTableView.dequeueReusableHeaderFooterView(withIdentifier: "headerId") as! HomeHeader
-        homeHeader.delegate = self as? sortHomeHeaderDelegate
+        homeHeader.delegate = self
         return homeHeader
     }
     
@@ -209,7 +223,7 @@ final class HomeTableViewController: UIViewController, UITableViewDelegate, UITa
         let cell = tableView.dequeueReusableCell(withIdentifier: "cellId") as! HomeCellView
       
         cell.backgroundColor = UIColor.clear
-        
+        print(" ER HER NU")
         if let logo = coreDataCoins[indexPath.row].logo as Data? {
             let newLogo = UIImage(data: logo)
             cell.coinLogo.image = newLogo

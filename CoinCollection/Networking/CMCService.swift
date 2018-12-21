@@ -17,6 +17,7 @@ final class CMCService {
     var jsonCoinLogoURL = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/info?symbol="
 
      func fetchCoinData(completion: @escaping (JsonCoinProperties?, URLResponse?, Error?) ->() ) {
+
         group.enter()
 
         guard let url = URL(string: "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest") else { return }
@@ -42,7 +43,6 @@ final class CMCService {
     
     func fetchCoinLogos(completion: @escaping (JsonCoinLogoData?, URLResponse?, Error?) -> () ) {
         group.enter()
-
         guard let url = URL(string: jsonCoinLogoURL) else { return }
         var request = URLRequest(url: url)
         request.setValue("b1b01e07-530b-4a4b-8bfd-8ad2ed7831e4", forHTTPHeaderField: "X-CMC_PRO_API_KEY")

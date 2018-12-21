@@ -9,6 +9,7 @@
 import UIKit
 
 extension HomeTableViewController {
+    
     func fetchPrices(url: String, index: Int) -> Int {
         var statusCode = 0
         
@@ -98,20 +99,24 @@ extension HomeTableViewController {
                 print("getCoinLogos Throwed An Error: ", err)
                 return
             }
-            
             guard let json = getJsonCoinLogo else { return }
+            print("JOSN ER ", json)
+
             let newChar: [Character] = ["3","2","x","3","2"]
+            print("JSON DATA COUTN ER:", json.data.count)
             for i in 0..<json.data.count {
                 if let symbol = self.coreDataCoins[i].buyPair {
-                    var tempString = json.data[symbol]!.logo
-                    var counter = 0
-                    for i in 46..<51 {
-                        tempString = self.replaceChars(myString: tempString, index: i, newChar: newChar[counter])
-                        counter += 1
+                    if let jsonData = json.data[symbol] {
+                        var tempString = jsonData.logo
+                        var counter = 0
+                        for i in 46..<51 {
+                            tempString = self.replaceChars(myString: tempString, index: i, newChar: newChar[counter])
+                            counter += 1
+                        }
+                        print("TEMPSTRING = :", tempString)
+                        guard let imageURL = URL(string: tempString) else { return }
+                        self.logoURLs.append(imageURL)
                     }
-                    print("TEMPSTRING = :", tempString)
-                    guard let imageURL = URL(string: tempString) else { return }
-                    self.logoURLs.append(imageURL)
                 }
             }
         }

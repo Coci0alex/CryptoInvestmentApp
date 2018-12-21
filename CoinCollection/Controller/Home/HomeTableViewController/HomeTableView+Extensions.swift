@@ -17,7 +17,6 @@ extension HomeTableViewController: navigationItemDelegate {
     
     func refreshButtonPushed() {
         checkNetworkErrors(statusCode: updateCoinData())
-        homeTableView.reloadData()
     }
 }
 
@@ -56,9 +55,6 @@ extension HomeTableViewController: sendDataToHomeDelegate {
         self.coreData.saveContext()
         fetchCoins()
         homeTableView.reloadData()
-        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1), execute: {
-            self.checkNetworkErrors(statusCode: self.updateCoinData())
-        })
     }
 }
 
@@ -68,7 +64,28 @@ extension HomeTableViewController: deleteCoinDelegate {
         coreData.saveContext()
         fetchCoins()
         homeTableView.reloadData()
-        updateCoinData()
+    }
+}
+
+extension HomeTableViewController: sortHomeHeaderDelegate {
+    
+    // Sorting Functions //
+    func didTapCoinNameBtn() {
+        self.coreDataCoins.sort(by: { Ascending[0] ? $0.coinNameBuy! > $1.coinNameBuy! : $0.coinNameBuy! < $1.coinNameBuy! })
+        Ascending[0] = !Ascending[0]
+        homeTableView.reloadData()
+    }
+    
+    func didTapPriceBtn() {
+        self.coreDataCoins.sort(by: { Ascending[1] ? $0.currentPrice > $1.currentPrice : $0.currentPrice < $1.currentPrice })
+        Ascending[1] = !Ascending[1]
+        homeTableView.reloadData()
+    }
+    
+    func didTapHoldingsBtn() {
+        self.coreDataCoins.sort(by: { Ascending[2] ? $0.holdingsUsd > $1.holdingsUsd : $0.holdingsUsd < $1.holdingsUsd })
+        Ascending[2] = !Ascending[2]
+        homeTableView.reloadData()
     }
 }
 

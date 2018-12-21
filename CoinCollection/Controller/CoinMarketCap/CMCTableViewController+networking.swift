@@ -10,10 +10,13 @@
 import UIKit
 
 extension CMCTableViewController  {
+    
     /// Handle network requests ///
     func getCoinSymbols() -> Int  {
         var statusCodeInFunc = 0
-        
+        self.jsonCoinLogoURL.removeAll()
+        jsonCoinLogoURL = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/info?symbol="
+
         self.coinMarketCapService.fetchCoinData { (JsonCoinProperties, response, err) in
             
             if let response = response as? HTTPURLResponse, let url = response.url {
@@ -46,6 +49,7 @@ extension CMCTableViewController  {
     
     func getCoinLogos() ->Int {
         var statusCodeInFunc = 0
+        self.logoURLs.removeAll()
         self.coinMarketCapService.fetchCoinLogos { (getJsonCoinLogo, response, err) in
             
             if let response = response as? HTTPURLResponse, let url = response.url {
@@ -63,14 +67,16 @@ extension CMCTableViewController  {
             guard let json = getJsonCoinLogo else { return }
             let newChar: [Character] = ["3","2","x","3","2"]
             for i in 0..<json.data.count {
-                var tempString = json.data[self.cryptoSymbols[i]]!.logo
-                var counter = 0
-                for i in 46..<51 {
-                    tempString = self.replaceChars(myString: tempString, index: i, newChar: newChar[counter])
-                    counter += 1
+                if let symbol = json.data[self.cryptoSymbols[i]] {
+                    var tempString = symbol.logo
+                    var counter = 0
+                    for i in 46..<51 {
+                        tempString = self.replaceChars(myString: tempString, index: i, newChar: newChar[counter])
+                        counter += 1
+                    }
+                    guard let imageURL = URL(string: tempString) else { return }
+                    self.logoURLs.append(imageURL)
                 }
-                guard let imageURL = URL(string: tempString) else { return }
-                self.logoURLs.append(imageURL)
             }
         }
         return statusCodeInFunc
@@ -78,6 +84,7 @@ extension CMCTableViewController  {
     
     func getFinalCoinData() -> Int {
         var statusCodeInFunc = 0
+        coins.removeAll()
         self.coinMarketCapService.fetchCoinData { (JsonCoinProperties, response, err) in
             
             if let response = response as? HTTPURLResponse, let url = response.url {

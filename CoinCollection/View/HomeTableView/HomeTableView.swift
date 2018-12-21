@@ -18,7 +18,6 @@ class HomeTableView: UITableView {
         table.register(HomeHeader.self, forHeaderFooterViewReuseIdentifier: "headerId")
         table.separatorStyle = .none
         return table
-        
     }()
     
     

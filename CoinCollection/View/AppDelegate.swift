@@ -14,31 +14,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
-
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         
-        //let vc = ViewController(persistenceManager: PersistenceManager.shared)
         
         window = UIWindow(frame: UIScreen.main.bounds)
         print("SCREEN RES:", UIScreen.main.bounds)
         window?.makeKeyAndVisible()
         
-        let someService = CMCService.sharedCMCInstance
-        let coreData = CoreDataStack.shared
-        let controller = CMCTableViewController(someService: someService, coreData: coreData)
+        // used for testing //
+        // let someService = CMCService.sharedCMCInstance
+        //let coreData = CoreDataStack.shared
+        //let controller = CMCTableViewController(someService: someService, coreData: coreData)
+        //         let PopUpVC = PopUpViewController()
         
-        let chartTest = CandleStickChartViewController()
-        //let controller = ViewController(persistenceManager: coreData)
         let newController = BottomTabBarController()
-        let PopUpVC = PopUpViewController()
         let navigationController = UINavigationController(rootViewController: newController)
         window?.rootViewController = navigationController
-        
-        
         return true
     }
-
+    
     /*
     func applicationWillResignActive(_ application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.

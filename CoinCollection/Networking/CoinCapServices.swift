@@ -12,6 +12,7 @@ final class CoinCapServices {
     
     static var sharedCoinCapInstance = CoinCapServices()
     private let errorModal = NetworkErrorHandling()
+    
     let group = DispatchGroup()
 
     func fetchExchanges(url: String, completion: @escaping (JsonGetExchanges?, URLResponse?, Error?) ->() ) {
@@ -99,7 +100,7 @@ final class CoinCapServices {
         
         URLSession.shared.dataTask(with: url) { (data, response, err) in
             
-            guard let data = data else { print("KOM HER IND");return }
+            guard let data = data else { return }
             guard let response = response else { return }
             
             do {

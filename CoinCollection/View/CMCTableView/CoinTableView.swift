@@ -20,7 +20,6 @@ class CoinTableView: UITableView {
         cryptoTable.register(CoinCellView.self, forCellReuseIdentifier: "cellId")
         cryptoTable.register(CoinHeader.self, forHeaderFooterViewReuseIdentifier: "headerId")
         return cryptoTable
- 
     }()
     
 }

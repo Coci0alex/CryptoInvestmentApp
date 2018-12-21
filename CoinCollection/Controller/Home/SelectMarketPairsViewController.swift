@@ -66,8 +66,13 @@ final class SelectMarketPairsViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let selectedMarketPair = self.exchangeData.marketPair[indexPath.row]
-        returnMarketPair(marketPair: selectedMarketPair)
+        if !searching {
+            let selectedMarketPair = self.exchangeData.marketPair[indexPath.row]
+            returnMarketPair(marketPair: selectedMarketPair)
+        } else {
+            let selectedMarketPair = self.filteredMarketPairs[indexPath.row]
+            returnMarketPair(marketPair: selectedMarketPair)
+        }
     }
     
     weak var delegate: returnMarketPairDelegate?

@@ -64,7 +64,6 @@ class CoinCellView: UITableViewCell {
         for i in 0..<label.count {
             label[i].heightAnchor.constraint(equalTo: self.heightAnchor, multiplier: array[i].height).isActive = true
             label[i].centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
-          //  label[i].widthAnchor.constraint(equalTo: self.widthAnchor, multiplier: scalingVars[i]).isActive = true
             label[i].translatesAutoresizingMaskIntoConstraints = false
             label[i].font = UIFont.systemFont(ofSize: 100)
             label[i].numberOfLines = 0
@@ -76,9 +75,6 @@ class CoinCellView: UITableViewCell {
         
         
         
-       // self.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width).isActive = true
-        print("UISCREEN widt", UIScreen.main.bounds.width)
-        print("SELF FRAM WIDTH", self.frame.width)
         // Unique constraints
         rankLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: UIScreen.main.bounds.width * rankScale.1).isActive = true
         
@@ -93,7 +89,6 @@ class CoinCellView: UITableViewCell {
         coinPrice.leadingAnchor.constraint(equalTo: rateChange24h.trailingAnchor, constant: UIScreen.main.bounds.width * priceScale.1).isActive = true
         coinPrice.trailingAnchor.constraint(equalTo: self.trailingAnchor).isActive = true
    
-       // rateChange24h.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: UIScreen.main.bounds.width * rateScale.1).isActive = true
         rateChange24h.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -5).isActive = true
     }
     

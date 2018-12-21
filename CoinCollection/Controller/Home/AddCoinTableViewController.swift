@@ -157,18 +157,28 @@ final class SelectCoinTableViewController: UITableViewController {
 //    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let selectedCoin = self.coinId[indexPath.row]
-        let selectedRow = indexPath.row
-        print("SELECTD ROW ER ", selectedRow)
-        print("SELECTED COIN ER :", selectedCoin.coinId)
+       
+        var selectedCoinId = String()
+        var selectedCoinName = String()
+        var selectedCoinSymbol = String()
+        
+        if !searching {
+            selectedCoinId = self.coinId[indexPath.row].coinId
+            selectedCoinName = self.coinId[indexPath.row].coinName
+            selectedCoinSymbol = self.coinId[indexPath.row].coinSymbol
+        } else {
+            selectedCoinId = self.filteredCoins[indexPath.row].coinId
+            selectedCoinName = self.filteredCoins[indexPath.row].coinName
+            selectedCoinSymbol = self.filteredCoins[indexPath.row].coinSymbol
+        }
+        
         let addTransactionVC = AddTransactionTableViewController(someService: coinCapService)
         addTransactionVC.delegate = self
-        let coin = SimpleCoinData(coinId: selectedCoin.coinId, coinName: selectedCoin.coinName, coinSymbol: selectedCoin.coinSymbol)
+        let coin = SimpleCoinData(coinId: selectedCoinId, coinName: selectedCoinName, coinSymbol: selectedCoinSymbol)
         if let coin = coin {
             addTransactionVC.coinData.buyPair = coin.coinSymbol
             addTransactionVC.coinData.coinNameBuy = coin.coinName
             addTransactionVC.coinData.coinId = coin.coinId
-            print("NAME ER :",  coin.coinId + "SYMBOL ER,", coin.coinSymbol)
         }
         self.navigationController?.pushViewController(addTransactionVC, animated: true)
     }

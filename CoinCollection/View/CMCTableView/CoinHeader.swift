@@ -60,7 +60,7 @@ required init?(coder aDecoder: NSCoder) {
         button.addTarget(self, action: #selector(rateButtonAction), for: .touchUpInside)
         return button
     }()
-
+    
    weak var delegate: sortDelegate?
     
     @objc func rankButtonAction()

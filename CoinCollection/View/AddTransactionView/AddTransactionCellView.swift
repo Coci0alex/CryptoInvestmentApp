@@ -21,8 +21,6 @@ class AddTransactionCellView: UITableViewCell {
         let label = UILabel()
         label.font = UIFont.boldSystemFont(ofSize: 100)
         label.textAlignment = .left
-     //   label.backgroundColor = .green
-      //  label.sizeToFit()
         return label
     }()
     
@@ -30,9 +28,6 @@ class AddTransactionCellView: UITableViewCell {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 100)
         label.textAlignment = .center
-   //     label.baselineAdjustment = .alignCenters
-     //   label.backgroundColor = .blue
-      //  label.sizeToFit()
         return label
     }()
     
@@ -205,9 +200,6 @@ class selectExchangeCell: UITableViewCell {
     let label = UILabel()
     label.font = UIFont.boldSystemFont(ofSize: 100)
     label.textAlignment = .left
-    //   label.backgroundColor = .green
-    //  label.sizeToFit()
-        
     return label
     }()
 
@@ -215,10 +207,6 @@ class selectExchangeCell: UITableViewCell {
     let label = UILabel()
     label.font = UIFont.systemFont(ofSize: 100)
     label.textAlignment = .left
-    //     label.baselineAdjustment = .alignCenters
-    //   label.backgroundColor = .blue
-    //  label.sizeToFit()
-        
     return label
     }()
     
